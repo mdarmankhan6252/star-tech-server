@@ -1,16 +1,50 @@
 import Product from "../models/productModel.js";
 
 
-//get products /api/product
-
-export const getProducts = async (req, res) => {
+const fetchProducts = async (res, filter = {}, options = {}) => {
    try {
-      const products = await Product.find();
+      const products = await Product.find(filter, null, options);
       res.status(200).json(products)
    } catch (error) {
       res.status(500).json({ message: error.message || 'Error fetching products' })
    }
+
 }
+
+
+//get products /api/product
+
+export const getAllProducts = async (req, res) => {
+   fetchProducts(res)
+}
+
+//get features product /api/product/featured
+
+export const getFeaturedProducts = async (req, res) => {
+   fetchProducts(res, {}, { sort: { createAt: -1 }, limit: 10 })
+}
+
+//inStock product / api/product/inStock
+export const getInStockProduct = async (req, res) => {
+   fetchProducts(res, { inStock: true })
+}
+
+//get a single product /api/product/id
+
+export const getSingleProduct = async (req, res) => {
+   try {
+      const { id } = req.params;
+      const product = await Product.findById(id);
+      if (!product) return res.status(400).json({ message: 'Product not found!' });
+      res.status(200).json(product)
+
+   } catch (error) {
+      res.status(500).json({ message: error.message })
+   }
+}
+
+
+
 
 // create product /api/product
 
@@ -39,7 +73,7 @@ export const deleteProduct = async (req, res) => {
 
       res.status(200).json({ message: 'Product has been deleted successfully!' })
    } catch (error) {
-      res.status(500).json({message: error.message || 'Error deleting the product.'})
+      res.status(500).json({ message: error.message || 'Error deleting the product.' })
    }
 }
 
