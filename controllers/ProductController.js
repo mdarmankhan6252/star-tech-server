@@ -15,7 +15,27 @@ const fetchProducts = async (res, filter = {}, options = {}) => {
 //get products /api/product
 
 export const getAllProducts = async (req, res) => {
-   fetchProducts(res)
+
+   const { category, inStock, minPrice, maxPrice } = req.query;
+
+   const filter = {};
+
+   if (category) {
+      filter.category = category;
+   }
+
+   if (inStock) {
+      filter.inStock = inStock === "true"
+   }
+
+   if (minPrice || maxPrice) {
+      filter.price = {};
+
+      if (minPrice) filter.currentPrice.$gte = Number(minPrice);
+      if (maxPrice) filter.currentPrice.$lte = Number(maxPrice)
+   }
+
+   fetchProducts(res, filter)
 }
 
 //get features product /api/product/featured
